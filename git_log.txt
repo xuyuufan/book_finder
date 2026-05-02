@@ -1,0 +1,23 @@
+* 82508d1 2025-12-15 DY: add a new file named readme.txt and change the name of run.py to main.py
+* aaa0c01 2025-12-14 DY: Tests: Improve test coverage with advanced mocking 1. Refactored test_books.py: - Added unit tests for the 'Three-Stage Rocket' author fetching strategy. - Implemented disambiguation logic tests. - Mocked external API calls (Wikipedia/Google Books) for stability.
+* fe45a77 2025-12-14 DY: Feat: Add Author Detail page,unify UI design and implement unit tests for our testing case:
+* 734b45f 2025-12-01 DY: Feat: Complete project overhaul with Advanced Search and UI polish
+* 893a495 2025-10-27 DY: feat: integrate Google Books API and enhance recommendation logic
+* 352b9bb 2025-10-27 DY: fix: Flask search response, update recommendation algorithm, and correct Jinja template rendering
+* b23b9dd 2025-10-26 DY: style: add a new style homepage
+| * 3900af0 2025-10-26 Dixin Deng: feat(A): add /api/search JSON and GET /search (blueprint) + search page
+| * a354dbe 2025-10-26 Dixin Deng: feat: finished books API and cache (student version, 9 fields)
+| | * 1db3201 2025-10-26 Xiao Cui: feat(app): integrate C module and handle recommendation pool splitting.
+| | * a0a51bf 2025-10-26 Xiao Cui: feat(recommend): implement recommend logic based on Content-Based Similarity and Genres.
+| |/  
+|/|   
+* | 19262cb 2025-10-26 DY: style:change the web language
+* | 5efc28c 2025-10-26 DY: feat: update README
+|/  
+* 6456c8e 2025-10-22 brisar: fix:Fixed an issue where the programme would crash when search results were empty.
+* 0b3d9f5 2025-10-21 brisar: fix: moved templates into app/templates and updated structure
+* 82353c2 2025-10-20 brisar: chore: add requirements.txt for environment consistency
+| * 6e4a299 2025-10-20 brisar: feat: setup Flask routes and templates
+|/  
+* bdcba0e 2025-10-19 brisar: chore: update .gitignore for Flask project
+* 0e494ca 2025-10-19 brisar: init: add project structure and .gitignore
