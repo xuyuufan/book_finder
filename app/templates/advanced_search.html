@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Advanced Search - BookFinder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#B91C1C", // Christmas Red
+            "secondary": "#FBBF24", // Gold
+            "background-light": "#F7F3E9", // beige from reference
+            "background-dark": "#1a2a1a", // Dark green
+            "text-light": "#333333",
+            "text-dark": "#F0FDF4",
+            "card-light": "#FFFFFF",
+            "card-dark": "#162316",
+            "border-light": "#E5E7EB",
+            "border-dark": "#2F4858",
+            "placeholder-light": "#6b7280",
+            "placeholder-dark": "#9ca3af",
+            "success": "#37824B", // Christmas Green
+          },
+          fontFamily: {
+            "display": ["Work Sans", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          backgroundImage: {
+            'christmas-pattern': "url('https://www.toptal.com/designers/subtlepatterns/uploads/snow.png')",
+            'christmas-header': "url('https://www.toptal.com/designers/subtlepatterns/uploads/light-wool.png')",
+          }
+        },
+      },
+    }
+  </script>
+<style type="text/tailwindcss">
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light bg-christmas-pattern text-text-light dark:bg-background-dark">
+<div class="relative flex min-h-screen w-full flex-col">
+    <header class="sticky top-0 z-20 w-full bg-christmas-header shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-20 items-center justify-between gap-4">
+                <div class="flex flex-shrink-0 items-center gap-3">
+                    <span class="material-symbols-outlined fill text-4xl text-primary">menu_book</span>
+                    <a class="text-3xl font-bold tracking-tight text-gray-800" href="{{ url_for('main.index') }}">BookFinder</a>
+                </div>
+                <div class="hidden flex-grow items-center justify-center lg:flex">
+                    <nav class="flex items-center gap-4 rounded-full bg-white/50 px-6 py-2 shadow-inner">
+                        <a class="rounded-full px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-red-50 hover:text-primary" href="{{ url_for('main.index') }}">Home</a>
+                        <span class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow cursor-default">Advanced Search</span>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative group">
+                        <a href="{{ url_for('main.feeling_lucky') }}"
+                            class="flex items-center gap-3 rounded-full px-5 py-3 bg-red-50 hover:bg-red-100 border-2 border-red-500 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1"
+                            aria-label="I'm Feeling Lucky">
+
+                            <span class="material-symbols-outlined text-green-600 text-5xl transition-transform duration-700 ease-in-out group-hover:scale-110">
+                                redeem
+                            </span>
+
+                            <span class="hidden sm:block font-extrabold text-base tracking-wide uppercase text-red-900">
+                                Surprise Me!
+                            </span>
+                        </a>
+
+                        <div class="absolute right-0 top-full mt-4 w-80 p-5 bg-gray-800 text-white text-base rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-center font-medium leading-relaxed">
+                            Can't decide? Open the box to uncover a hidden gem!
+                            <div class="absolute bottom-full right-8 border-[10px] border-transparent border-b-gray-800"></div>
+                        </div>
+                    </div>
+                    <button class="rounded-full p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-primary lg:hidden">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <div class="container mx-auto px-4 py-8 md:py-12 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-4xl">
+
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    <div class="mb-6 rounded-md bg-red-50 p-4 border border-red-200">
+                      <div class="flex">
+                        <div class="ml-3">
+                          <h3 class="text-sm font-medium text-red-800">Notice</h3>
+                          <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                              {% for message in messages %}
+                                <li>{{ message }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+                <div class="relative mb-10 text-center">
+                    <h1 class="text-4xl font-extrabold tracking-tighter text-gray-800 sm:text-5xl md:text-6xl">Smart Book Search</h1>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Find your next great read with our search tools. Happy Holidays!</p>
+                    <div aria-hidden="true" class="pointer-events-none absolute -top-8 -left-4 text-5xl opacity-20 transform -rotate-12">❄️</div>
+                    <div aria-hidden="true" class="pointer-events-none absolute -bottom-8 -right-4 text-5xl opacity-20 transform rotate-12">☃️</div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white/80 p-6 shadow-lg backdrop-blur-sm sm:p-8">
+                    <form action="{{ url_for('main.advanced_search_results') }}" method="GET" class="space-y-6">
+                        <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium leading-6 text-gray-900" for="book-title">Title</label>
+                                <div class="mt-2">
+                                    <input type="text" name="title" id="book-title"
+                                           class="block w-full rounded-md border-0 py-2.5 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                           placeholder="e.g., A Christmas Carol">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium leading-6 text-gray-900" for="author-name">Author</label>
+                                <div class="mt-2">
+                                    <input type="text" name="author" id="author-name"
+                                           class="block w-full rounded-md border-0 py-2.5 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                           placeholder="e.g., Charles Dickens">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium leading-6 text-gray-900" for="publisher">Publisher</label>
+                                <div class="mt-2">
+                                    <input type="text" name="publisher" id="publisher"
+                                           class="block w-full rounded-md border-0 py-2.5 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                           placeholder="e.g., Chapman & Hall">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium leading-6 text-gray-900" for="isbn">ISBN</label>
+                                <div class="mt-2">
+                                    <input type="text" name="isbn" id="isbn"
+                                           class="block w-full rounded-md border-0 py-2.5 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                           placeholder="e.g., 9781503215672">
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium leading-6 text-gray-900" for="keywords">Keywords</label>
+                                <div class="mt-2">
+                                    <input type="text" name="keywords" id="keywords"
+                                           class="block w-full rounded-md border-0 py-2.5 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+                                           placeholder="e.g., ghosts, holiday spirit, festive">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-6">
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:w-auto">
+                                <span class="material-symbols-outlined text-xl">search</span>
+                                Find Books
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

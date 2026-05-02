@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ author.name }} - Author Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#b91c1c",
+            "secondary": "#166534",
+            "background-light": "#FFFBF2",
+            "background-dark": "#1f2937",
+            "text-light": "#333333",
+            "text-dark": "#EAEAEA",
+            "text-muted-light": "#666666",
+            "text-muted-dark": "#999999",
+            "border-light": "#E0E0E0",
+            "border-dark": "#333333",
+
+            "christmas-red": "#d9534f",
+            "christmas-green": "#228b22",
+            "christmas-gold": "#f0c43c",
+            "subtle-light": "#64748b",
+            "subtle-dark": "#94a3b8",
+            "surface-light": "#ffffff",
+            "surface-dark": "#312e73",
+            "warm-bg": "#fdf8f2",
+            "accent-bg": "#fdf2f2",
+          },
+          fontFamily: {
+            "display": ["Work Sans", "sans-serif"],
+            "body": ["Lora", "serif"]
+          },
+          backgroundImage: {
+            'christmas-pattern': "url('https://www.toptal.com/designers/subtlepatterns/uploads/snow.png')",
+          }
+        },
+      },
+    }
+</script>
+<style type="text/tailwindcss">
+    @layer base {
+      .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    }
+
+    .book-card:hover .book-cover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    .book-card .book-cover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+
+    .festive-bg {
+        background-color: #fdf8f2;
+        background-image: radial-gradient(#d9534f08 1px, transparent 1px), radial-gradient(#d9534f08 1px, transparent 1px);
+        background-position: 0 0, 25px 25px;
+        background-size: 50px 50px;
+    }
+</style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+
+    <header class="sticky top-0 z-50 flex items-center justify-center whitespace-nowrap border-b border-solid border-border-light/50 dark:border-border-dark/50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+        <div class="flex items-center justify-between w-full max-w-7xl px-4 lg:px-8 py-3">
+            <div class="flex items-center gap-8">
+                <a class="flex items-center gap-3 group" href="{{ url_for('main.index') }}">
+                    <span class="material-symbols-outlined text-4xl text-[#B91C1C]"
+                          style="font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;">
+                        menu_book
+                    </span>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-[#1F2937] dark:text-white group-hover:opacity-80 transition-opacity">
+                        BookFinder
+                    </h2>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-6 border-l-2 border-gray-200 dark:border-gray-600 pl-6 h-10">
+                     <a href="{{ url_for('main.index') }}"
+                        class="text-base font-bold text-[#1F2937] dark:text-white hover:text-[#B91C1C] transition-colors">
+                        Home
+                     </a>
+                     <a href="{{ url_for('main.advanced_search') }}"
+                        class="text-base font-bold text-[#1F2937] dark:text-white hover:text-[#B91C1C] transition-colors">
+                        Advanced Search
+                     </a>
+                </nav>
+            </div>
+
+            <div class="flex flex-1 justify-end items-center gap-4">
+                <form action="{{ url_for('main.search') }}" method="POST" class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+                    <div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-200/60 dark:bg-slate-800/60">
+                        <button type="submit" class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center pl-3 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">search</span>
+                        </button>
+                        <input name="q" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-text-muted-light dark:placeholder:text-text-muted-dark pl-2 text-base font-normal leading-normal" placeholder="Search..." value=""/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-4 lg:px-8 py-8 md:py-10 flex flex-col gap-8">
+
+        <nav class="flex items-center gap-2 text-sm mb-2">
+            <a class="text-subtle-light hover:text-primary transition-colors font-medium" href="{{ url_for('main.index') }}">Home</a>
+            <span class="text-subtle-light/50 font-medium">/</span>
+            <span class="text-text-light font-bold">{{ author.name }}</span>
+        </nav>
+
+        <section class="flex flex-col md:flex-row gap-8 items-start md:items-center bg-white dark:bg-surface-dark p-6 md:p-8 rounded-2xl shadow-xl border border-christmas-gold/30 relative overflow-hidden group">
+            <div class="absolute -top-6 -right-6 text-christmas-red/5 dark:text-white/5 rotate-12 pointer-events-none select-none">
+                <span class="material-symbols-outlined text-[180px]">ac_unit</span>
+            </div>
+
+            <div class="relative shrink-0">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-cover bg-center shadow-lg ring-4 ring-white dark:ring-surface-dark border-4 border-christmas-gold" style="background-image: url('{{ author.image }}');"></div>
+                {% if author.source %}
+                <div class="absolute bottom-1 right-1 bg-christmas-green text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-full shadow-md border border-white" title="Source: {{ author.source }}">
+                    Verified
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-col gap-2 z-10 flex-1">
+                <h1 class="text-3xl md:text-5xl font-black tracking-tight text-text-light dark:text-white">{{ author.name }}</h1>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-subtle-light dark:text-subtle-dark font-medium">
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">person</span> Author</span>
+                    <span class="hidden sm:inline">•</span>
+                    <span>Books: {{ books|length }}</span>
+                </div>
+                <p class="mt-2 text-text-light/80 dark:text-text-dark/80 max-w-2xl leading-relaxed font-body text-lg line-clamp-4 hover:line-clamp-none transition-all cursor-pointer" title="Click to expand">
+                    {{ author.bio[:300] }}{{ '...' if author.bio|length > 300 else '' }}
+                </p>
+            </div>
+
+            <div class="flex md:flex-col gap-3 w-full md:w-auto z-10 mt-4 md:mt-0">
+                <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');" class="flex-1 md:flex-none flex items-center justify-center gap-2 h-10 px-6 rounded-xl bg-accent-bg hover:bg-christmas-red hover:text-white text-christmas-red text-sm font-bold transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">share</span>
+                    Share
+                </button>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+
+            <div class="lg:col-span-8 flex flex-col gap-8">
+
+                <section class="bg-white dark:bg-surface-dark p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="material-symbols-outlined text-primary text-[28px]">history_edu</span>
+                        <h2 class="text-2xl font-bold text-text-light dark:text-white">Biography</h2>
+                    </div>
+                    <div class="prose dark:prose-invert max-w-none font-body text-lg leading-relaxed text-gray-600 dark:text-gray-300">
+                        <p>{{ author.bio }}</p>
+                    </div>
+                    <div class="mt-4 text-right">
+                         <span class="text-xs text-subtle-light italic">
+                             (Source: {{ author.source if author.source else 'Wikipedia/OpenLibrary' }})
+                         </span>
+                    </div>
+                </section>
+
+                <section class="p-6 sm:p-8 bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div class="flex flex-col gap-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[28px]">library_books</span>
+                                <h2 class="text-2xl font-bold text-text-light dark:text-white">Famous Works</h2>
+                            </div>
+                        </div>
+
+                        {% if books %}
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 gap-y-10">
+                            {% for book in books %}
+                            <a class="group flex flex-col" href="{{ url_for('main.book_detail', book_id=book.id) }}">
+                                <div class="w-full aspect-[2/3] rounded-lg bg-gray-200 overflow-hidden shadow-sm group-hover:shadow-md group-hover:opacity-90 transition-all duration-300 relative">
+                                    {% if book.thumbnail %}
+                                    <img alt="{{ book.title }}" class="w-full h-full object-cover" src="{{ book.thumbnail }}"/>
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                        <span class="material-symbols-outlined text-5xl">book</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <h3 class="mt-3 text-sm font-bold text-gray-800 dark:text-gray-200 text-center leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                                    {{ book.title }}
+                                </h3>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                            <div class="p-8 text-center bg-transparent rounded-xl border-2 border-dashed border-gray-300 text-subtle-light">
+                                No books found for this author.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="lg:col-span-4 flex flex-col gap-6 self-start">
+
+                {% if stats.top_genres %}
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-text-light dark:text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-christmas-gold">category</span>
+                        Signature Genres
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for genre in stats.top_genres %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                            {{ genre }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-text-light dark:text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-christmas-gold">info</span>
+                        Quick Facts
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                            <span class="text-subtle-light text-sm">Role</span>
+                            <span class="text-text-light dark:text-white font-semibold text-sm">Author</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                            <span class="text-subtle-light text-sm">Born</span>
+                            <span class="text-text-light dark:text-white font-semibold text-sm">{{ author.born if author.born else 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                            <span class="text-subtle-light text-sm">Active Years</span>
+                            <span class="text-text-light dark:text-white font-semibold text-sm">{{ stats.years_range }}</span>
+                        </div>
+                         <div class="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                            <span class="text-subtle-light text-sm">Total Works</span>
+                            <span class="text-text-light dark:text-white font-semibold text-sm">{{ books|length }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if stats.total_pages > 0 %}
+                <div class="bg-gradient-to-br from-christmas-red/5 to-christmas-gold/5 dark:from-surface-dark dark:to-background-dark p-6 rounded-2xl shadow-sm border border-christmas-red/10">
+                    <h3 class="text-lg font-bold text-text-light dark:text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-christmas-red">monitoring</span>
+                        By The Numbers
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-3xl font-black text-christmas-red">{{ stats.total_pages }}</span>
+                            <span class="text-xs text-subtle-light uppercase font-bold tracking-wider">Pages Written</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-3xl font-black text-christmas-green">{{ stats.top_genres|length }}</span>
+                            <span class="text-xs text-subtle-light uppercase font-bold tracking-wider">Unique Genres</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-text-light dark:text-white mb-4">Find More</h3>
+                    <a href="https://www.amazon.com/s?k={{ author.name|urlencode }}+books" target="_blank" class="flex items-center justify-between w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group mb-2">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-400 group-hover:text-[#FF9900]">shopping_cart</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Amazon Books</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-gray-400">open_in_new</span>
+                    </a>
+                    <a href="https://www.google.com/search?q={{ author.name|urlencode }}+writer" target="_blank" class="flex items-center justify-between w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-400 group-hover:text-blue-500">public</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Google Search</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-gray-400">open_in_new</span>
+                    </a>
+                </div>
+
+            </aside>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

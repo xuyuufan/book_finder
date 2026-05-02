@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BookFinder - Full Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#c084fc",
+                    "primary-focus": "#a855f7",
+                    "background-light": "#fdf8f2",
+                    "background-dark": "#1e1b4b",
+                    "text-light": "#1e293b",
+                    "text-dark": "#e2e8f0",
+                    "subtle-light": "#64748b",
+                    "subtle-dark": "#94a3b8",
+                    "surface-light": "#ffffff",
+                    "surface-dark": "#312e73",
+                    "border-light": "#e2e8f0",
+                    "border-dark": "#475569",
+                    "christmas-red": "#d9534f",
+                    "christmas-green": "#228b22",
+                    "christmas-gold": "#f0c43c",
+                    "warm-bg": "#fdf8f2",
+                },
+                fontFamily: { "display": ["Work Sans", "sans-serif"] },
+                borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+            },
+        },
+    }
+</script>
+<style type="text/tailwindcss">
+    .book-card:hover .book-cover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    .book-card .book-cover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* Hide scrollbar for carousel but keep functionality */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Tab Active State */
+    .tab-active {
+        color: #d9534f !important; /* christmas-red */
+        border-bottom-color: #d9534f !important;
+    }
+
+    /* --- Christmas Tree CSS (Fixed & Adjusted) --- */
+    .christmas-tree {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        height: 550px;
+        margin: auto;
+        transform: scale(1.25);
+        transform-origin: top center;
+        margin-top: 20px;
+    }
+
+
+    .tree-layer {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-color: transparent;
+        border-bottom-color: var(--color);
+        z-index: 5;
+    }
+
+    .tree-layer-1 { --color: #2f855a; border-width: 0 40px 80px 40px; top: 50px; left: calc(50% - 40px); z-index: 7; }
+    .tree-layer-2 { --color: #38a169; border-width: 0 60px 100px 60px; top: 110px; left: calc(50% - 60px); z-index: 6; }
+    .tree-layer-3 { --color: #48bb78; border-width: 0 85px 120px 85px; top: 180px; left: calc(50% - 85px); z-index: 5; }
+
+    .tree-trunk {
+        position: absolute;
+        top: 300px;
+        left: calc(50% - 25px);
+        width: 50px;
+        height: 50px;
+        background-color: #7b341e;
+        z-index: 4;
+    }
+
+    .tree-star {
+        position: absolute;
+        top: 0px;
+        left: calc(50% - 25px);
+        color: #f6e05e;
+        width: 50px;
+        height: 50px;
+        text-shadow: 0 0 10px #f6e05e;
+        z-index: 20;
+    }
+
+
+    .ornament {
+        position: absolute;
+        cursor: pointer;
+        transition: transform 0.2s ease, filter 0.2s ease;
+        z-index: 10;
+
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    .ornament:hover {
+        transform: scale(1.5);
+        filter: brightness(1.1);
+        z-index: 30;
+    }
+
+
+    .ornament-1 { top: 110px; left: 25%; width: 50px; height: 75px; }
+    .ornament-2 { top: 190px; left: 60%; width: 50px; height: 75px; }
+    .ornament-3 { top: 290px; left: 20%; width: 50px; height: 75px; }
+    .ornament-4 { top: 300px; left: 55%; width: 45px; height: 68px; }
+
+    .garland {
+        position: absolute;
+        width: 100%;
+        height: 20px;
+        background: repeating-linear-gradient(45deg, #d9534f, #d9534f 5px, #f0c43c 5px, #f0c43c 10px);
+        border-radius: 10px;
+        opacity: 0.7;
+        z-index: 8;
+        pointer-events: none;
+    }
+    .garland-1 { top: 120px; transform: rotate(-10deg); width: 80%; left: 10%; }
+    .garland-2 { top: 210px; transform: rotate(8deg); width: 100%; left: 0;}
+    .garland-3 { top: 320px; transform: rotate(-5deg); width: 90%; left: 5%; }
+
+    .light-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 5px currentColor; z-index: 9;}
+</style>
+</head>
+<body class="bg-warm-bg dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8">
+
+    <header class="flex items-center justify-between whitespace-nowrap px-4 sm:px-6 py-4 bg-christmas-red dark:bg-surface-dark/80 rounded-xl shadow-lg sticky top-5 z-20 border-2 border-christmas-gold/50 text-white">
+        <div class="absolute top-0 left-0 w-full h-full bg-cover bg-center opacity-10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCh_3zx4GQQ-OCa3ve75QsTmTLRwcXnfoc7pMBqh43Nc-ugVKLpjBofnoiNlJhAOi7N3ZbF6nd9edw0tTHe-4PnABlYUderDARajWP5uYzafdBtVE5b2R5PXWIKK9RR3SCFH5mhOXpOFJ04uvd1sfzv8qw_w-hBOfCbPS5ur9cY1zpl-acIHz_4w165g3kb1OlT4zHGDpuonuuLL3QIyTxcYDiiD48iR3Ag0gtfWb70IkI3EI2kom-r9LDlC6ry3dTon_qzdxoq_3Ln');"></div>
+        <div class="relative flex items-center gap-8">
+            <a class="flex items-center gap-3 text-white" href="{{ url_for('main.index') }}">
+                <span class="material-symbols-outlined text-4xl text-christmas-gold" style="text-shadow: 0 2px 4px rgba(0,0,0,0.2);"> auto_stories </span>
+                <h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em] hidden sm:block" style="text-shadow: 0 2px 4px rgba(0,0,0,0.2);">BookFinder</h2>
+            </a>
+        </div>
+        <div class="flex-1 px-8 hidden md:flex justify-center relative">
+            <form id="searchForm" action="{{ url_for('main.search') }}" method="POST" class="flex flex-col min-w-40 !h-11 w-full max-w-lg">
+                <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                    <button type="submit" class="text-christmas-red flex bg-white/90 items-center justify-center pl-4 rounded-l-lg border-2 border-r-0 border-christmas-gold/70 hover:bg-gray-100 cursor-pointer transition-colors">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <input name="q" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light focus:outline-0 focus:ring-2 focus:ring-christmas-gold border-2 border-l-0 border-christmas-gold/70 bg-white/90 h-full placeholder:text-subtle-light px-4 pl-2 text-base font-normal leading-normal" placeholder="Search for festive reads..." value=""/>
+                </div>
+            </form>
+        </div>
+        <div class="relative flex flex-1 justify-end items-center gap-4">
+            <a class="font-semibold hover:text-christmas-gold transition-colors" href="{{ url_for('main.advanced_search') }}">Advanced Search</a>
+            <button onclick="document.getElementById('searchForm').submit()" class="flex items-center justify-center rounded-full bg-christmas-green hover:bg-green-700 text-white font-semibold px-5 py-2.5 text-sm transition-colors shadow-lg border border-white/30">
+                Get Started
+            </button>
+        </div>
+    </header>
+
+    <main class="mt-12 flex flex-col gap-16">
+        <section class="text-center px-4 py-12 relative">
+            <div class="absolute inset-0 bg-no-repeat bg-center opacity-10 [background-image:url('https://www.transparentpng.com/thumb/christmas-bell/ZML59i-christmas-bell-clipart-hd.png')]"></div>
+            <h1 class="text-text-light dark:text-text-dark text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter">Find Your Next Favorite Read.</h1>
+            <p class="text-subtle-light dark:text-subtle-dark text-lg md:text-xl font-normal leading-normal mt-4 max-w-3xl mx-auto">Discover cozy books for the holiday season with our intelligent, content-based recommendations.</p>
+        </section>
+
+        <div class="grid grid-cols-12 gap-8">
+            <div class="col-span-12 lg:col-span-8 flex flex-col gap-16">
+
+                <section>
+                    <div class="flex items-center justify-between px-4 sm:px-0 lg:px-0 pb-4">
+                        <h2 class="text-text-light dark:text-text-dark text-4xl font-bold leading-tight tracking-[-0.015em]">You might like</h2>
+                    </div>
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-6 gap-y-12">
+                        {% if you_might_like_books %}
+                            {% for book in you_might_like_books %}
+                            <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="flex flex-col gap-4 group book-card cursor-pointer">
+                                <div class="relative w-full"><div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md book-cover" style="background-image: url('{{ book.thumbnail }}');"></div></div>
+                                <div class="flex flex-col">
+                                    <h3 class="text-text-light dark:text-text-dark text-base font-bold leading-tight truncate group-hover:text-christmas-red transition-colors">{{ book.title }}</h3>
+                                    <p class="text-subtle-light dark:text-subtle-dark text-sm font-normal">{{ book.authors[0] if book.authors else 'Unknown' }}</p>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-subtle-light col-span-4">Loading popular suggestions...</p>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="flex flex-col gap-6 group/carousel">
+                    <div class="flex flex-col md:flex-row md:items-baseline justify-between gap-2 pb-2 border-b border-border-light dark:border-border-dark">
+                        <div class="flex flex-col md:flex-row md:items-baseline gap-4">
+                            <h2 class="text-text-light dark:text-text-dark text-4xl font-bold leading-tight tracking-[-0.015em] whitespace-nowrap">
+                                Popular this week
+                            </h2>
+                            <nav class="flex flex-wrap gap-4 md:ml-4 mt-2 md:mt-0 items-baseline">
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1 tab-active" data-target="fiction" onmouseenter="switchTab('fiction')">Fiction</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="history" onmouseenter="switchTab('history')">History</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="thriller" onmouseenter="switchTab('thriller')">Thriller</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="scifi" onmouseenter="switchTab('scifi')">Sci-Fi</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="mystery" onmouseenter="switchTab('mystery')">Mystery</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="fantasy" onmouseenter="switchTab('fantasy')">Fantasy</a>
+                                <a href="#" class="genre-tab text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-christmas-red transition-colors border-b-2 border-transparent pb-1" data-target="biography" onmouseenter="switchTab('biography')">Biography</a>
+                            </nav>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="scrollCarousel('left')" class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark h-8 w-8 rounded-full flex items-center justify-center hover:bg-christmas-red hover:text-white hover:border-christmas-red transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </button>
+                            <button onclick="scrollCarousel('right')" class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark h-8 w-8 rounded-full flex items-center justify-center hover:bg-christmas-red hover:text-white hover:border-christmas-red transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full min-h-[320px]">
+                        {% for category, books in popular_books.items() %}
+                        <div id="content-{{ category }}" class="genre-content transition-opacity duration-300 {{ 'hidden' if not loop.first }}">
+                            <div class="carousel-scroll-target flex overflow-x-auto no-scrollbar py-4 -mx-4 px-4 scroll-smooth">
+                                <div class="flex items-stretch gap-6">
+                                    {% if books %}
+                                        {% for book in books %}
+                                        <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="flex h-full flex-1 flex-col gap-4 rounded-lg bg-surface-light dark:bg-surface-dark min-w-[200px] w-[200px] group book-card cursor-pointer p-3 border border-border-light dark:border-border-dark shrink-0">
+                                            <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-lg book-cover" style="background-image: url('{{ book.thumbnail }}');"></div>
+                                            <div>
+                                                <p class="text-text-light font-bold truncate group-hover:text-christmas-red transition-colors">{{ book.title }}</p>
+                                                <p class="text-subtle-light text-sm">{{ book.authors[0] if book.authors else 'Unknown' }}</p>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="p-4 text-subtle-light">Loading data...</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                 <section>
+                    <div class="flex items-center justify-between px-4 sm:px-0 lg:px-0 pb-4">
+                        <h2 class="text-text-light dark:text-text-dark text-4xl font-bold leading-tight tracking-[-0.015em]">Love List?</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="flex flex-col gap-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-4 shadow-sm h-full">
+                            <div class="flex items-center gap-2 mb-2 border-b border-border-light dark:border-border-dark pb-2">
+                                <span class="material-symbols-outlined text-christmas-red">trending_up</span>
+                                <h3 class="font-bold text-text-light dark:text-text-dark">Trending </h3>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                {% if love_lists and love_lists['trending'] %}
+                                    {% for book in love_lists['trending'] %}
+                                    <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="flex items-center gap-3 group">
+                                        <div class="w-10 h-14 bg-gray-200 rounded bg-cover bg-center flex-shrink-0 shadow-sm" style="background-image: url('{{ book.thumbnail }}');"></div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-semibold group-hover:text-christmas-red transition-colors line-clamp-1">{{ book.title }}</span>
+                                            <span class="text-xs text-subtle-light">{{ book.authors[0] if book.authors else 'Unknown' }}</span>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-xs text-subtle-light">No items found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                         <div class="flex flex-col gap-4 bg-surface-light dark:bg-surface-dark rounded-xl border-2 border-christmas-gold/30 dark:border-christmas-gold/20 p-4 shadow-sm h-full relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-2 opacity-10 text-christmas-red"><span class="material-symbols-outlined text-6xl">forest</span></div>
+                            <div class="flex items-center gap-2 mb-2 border-b border-christmas-gold/30 pb-2 relative z-10">
+                                <span class="material-symbols-outlined text-christmas-green">auto_fix</span>
+                                <h3 class="font-bold text-text-light dark:text-text-dark">Christmas Specials</h3>
+                            </div>
+                            <div class="flex flex-col gap-3 relative z-10">
+                                {% if love_lists and love_lists['christmas'] %}
+                                    {% for book in love_lists['christmas'] %}
+                                    <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="flex items-center gap-3 group">
+                                        <div class="w-10 h-14 bg-gray-200 rounded bg-cover bg-center flex-shrink-0 shadow-sm" style="background-image: url('{{ book.thumbnail }}');"></div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-semibold group-hover:text-christmas-red transition-colors line-clamp-1">{{ book.title }}</span>
+                                            <span class="text-xs text-subtle-light">{{ book.authors[0] if book.authors else 'Unknown' }}</span>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-4 shadow-sm h-full">
+                            <div class="flex items-center gap-2 mb-2 border-b border-border-light dark:border-border-dark pb-2">
+                                <span class="material-symbols-outlined text-primary">auto_stories</span>
+                                <h3 class="font-bold text-text-light dark:text-text-dark">Modern Classics</h3>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                {% if love_lists and love_lists['life essentials'] %}
+                                    {% for book in love_lists['life essentials'] %}
+                                    <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="flex items-center gap-3 group">
+                                        <div class="w-10 h-14 bg-gray-200 rounded bg-cover bg-center flex-shrink-0 shadow-sm" style="background-image: url('{{ book.thumbnail }}');"></div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-semibold group-hover:text-christmas-red transition-colors line-clamp-1">{{ book.title }}</span>
+                                            <span class="text-xs text-subtle-light">{{ book.authors[0] if book.authors else 'Unknown' }}</span>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-xs text-subtle-light">Loading list...</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+
+                <section class="bg-surface-light dark:bg-surface-dark rounded-xl border-2 border-christmas-gold/50 shadow-lg overflow-hidden flex flex-col relative group hover:border-christmas-red transition-colors duration-300">
+                    <div class="bg-christmas-red p-4 flex items-center justify-between text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-christmas-gold">calendar_month</span>
+                            <h3 class="font-bold text-lg">Daily Festive Pick</h3>
+                        </div>
+                        <span class="material-symbols-outlined opacity-50">ac_unit</span>
+                    </div>
+
+                    <div class="p-6 flex flex-col items-center gap-5 bg-[url('https://www.transparentpng.com/thumb/snow/snow-transparent-background-12.png')] bg-contain bg-top bg-no-repeat">
+
+                        <div class="relative bg-white dark:bg-background-dark border-2 border-christmas-green/20 rounded-lg p-3 w-32 shadow-sm text-center transform group-hover:scale-105 transition-transform">
+                            <div class="absolute -top-2 left-3 w-3 h-3 bg-background-light dark:bg-background-dark rounded-full border border-gray-300"></div>
+                            <div class="absolute -top-2 right-3 w-3 h-3 bg-background-light dark:bg-background-dark rounded-full border border-gray-300"></div>
+
+                            <span id="calendar-month" class="block text-sm font-bold text-christmas-red uppercase tracking-wider">{{ calendar_data.month }}</span>
+                            <span id="calendar-day" class="block text-5xl font-black text-text-light dark:text-text-dark leading-tight my-1">{{ calendar_data.day }}</span>
+                            <span id="calendar-weekday" class="block text-xs text-subtle-light dark:text-subtle-dark font-medium">{{ calendar_data.weekday }}</span>
+                        </div>
+
+                        <div class="w-full border-t border-dashed border-border-light dark:border-border-dark pt-5">
+                            <div id="calendar-book-container" class="flex items-start gap-4 animate-fade-in">
+                                {% if daily_book %}
+                                    <div class="w-16 h-24 bg-cover bg-center rounded shadow-md flex-shrink-0" style="background-image: url('{{ daily_book.thumbnail }}');"></div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-xs text-christmas-red font-bold uppercase mb-1">Recommended</p>
+                                        <h4 class="text-sm font-bold text-text-light dark:text-text-dark leading-tight line-clamp-2">{{ daily_book.title }}</h4>
+                                        <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">
+                                            <a href="{{ url_for('main.author_detail', author_name=daily_book.authors[0]) }}" class="hover:text-christmas-red hover:underline transition-colors">
+                                                {{ daily_book.authors[0] if daily_book.authors else 'Unknown' }}
+                                            </a>
+<                                       </p>
+                                    </div>
+                                {% else %}
+                                    <p class="text-sm text-subtle-light">Loading today's pick...</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <a href="{{ url_for('main.book_detail', book_id=daily_book.id) }}" class="w-full py-2 rounded-lg bg-christmas-green/10 text-christmas-green font-bold text-sm hover:bg-christmas-green hover:text-white transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">book_2</span>
+                            Read Today's Pick
+                        </a>
+                    </div>
+                </section>
+
+                <section class="p-6 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark">
+                    <h3 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Quote of the Day</h3>
+                    <blockquote class="mt-4 border-l-4 border-christmas-green pl-4 italic text-subtle-light dark:text-subtle-dark">
+                        <p>"A reader lives a thousand lives before he dies . . . The man who never reads lives only one."</p>
+                    </blockquote>
+                    <p class="mt-2 text-sm font-medium text-right text-text-light dark:text-text-dark">― George R.R. Martin</p>
+                </section>
+
+                <section class="p-6 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden">
+                    <h3 class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Christmas Book Tree</h3>
+                    <div class="christmas-tree mt-8">
+                        <div class="tree-star">
+                            <svg fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                        <div class="garland garland-1"></div>
+                        <div class="garland garland-2"></div>
+                        <div class="garland garland-3"></div>
+                        <div class="tree-layer tree-layer-1"></div>
+                        <div class="tree-layer tree-layer-2"></div>
+                        <div class="tree-layer tree-layer-3"></div>
+                        <div class="tree-trunk"></div>
+                        <div class="light-dot" style="top: 100px; left: 50%; background-color: #f87171;"></div>
+                        <div class="light-dot" style="top: 150px; left: 30%; background-color: #60a5fa;"></div>
+                        <div class="light-dot" style="top: 200px; left: 75%; background-color: #facc15;"></div>
+                        <div class="light-dot" style="top: 250px; left: 40%; background-color: #4ade80;"></div>
+                        <div class="light-dot" style="top: 330px; left: 65%; background-color: #c084fc;"></div>
+
+                        {% if tree_books %}
+                            {% for book in tree_books %}
+                            <a class="ornament ornament-{{ loop.index }}" href="{{ url_for('main.book_detail', book_id=book.id) }}" title="{{ book.title }}">
+                                <div class="w-full h-full bg-cover bg-center rounded shadow-lg border-2 border-christmas-gold" style="background-image: url('{{ book.thumbnail }}');"></div>
+                            </a>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// --- 1. Tab Switching Logic ---
+function switchTab(targetId) {
+    const contents = document.querySelectorAll('.genre-content');
+    contents.forEach(c => c.classList.add('hidden'));
+
+    const tabs = document.querySelectorAll('.genre-tab');
+    tabs.forEach(t => t.classList.remove('tab-active'));
+
+    const targetContent = document.getElementById('content-' + targetId);
+    if(targetContent) {
+        targetContent.classList.remove('hidden');
+    }
+
+    const activeTab = document.querySelector(`.genre-tab[data-target="${targetId}"]`);
+    if(activeTab) {
+        activeTab.classList.add('tab-active');
+    }
+}
+
+// --- 2. Carousel Scrolling Logic ---
+function scrollCarousel(direction) {
+    const activeContent = document.querySelector('.genre-content:not(.hidden) .carousel-scroll-target');
+
+    if (activeContent) {
+        const scrollAmount = 300; // Adjust scroll distance
+        if (direction === 'left') {
+            activeContent.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        } else {
+            activeContent.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+}
+</script>
+</body>
+</html>

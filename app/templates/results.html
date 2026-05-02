@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Search Results for '{{ q }}'</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&family=Lora:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#C5283D", // Christmas Red
+                    "accent": "#FBBF24", // Gold
+                    "background-light": "#F8F6F1",
+                    "background-dark": "#1f2937",
+                    "text-light": "#333333",
+                    "text-dark": "#F8F9FA",
+                    "christmas-green": "#22573B",
+                },
+                fontFamily: {
+                    "display": ["Lora", "serif"],
+                    "body": ["Work Sans", "sans-serif"]
+                },
+            },
+        },
+    }
+</script>
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    /* Ensure the icon renders correctly */
+    .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-body text-text-light dark:text-text-dark">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+
+    <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b-4 border-[#D96666]">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <a class="flex items-center gap-3 group text-christmas-green dark:text-white" href="{{ url_for('main.index') }}">
+                        <span class="material-symbols-outlined text-4xl text-[#B91C1C]"
+                              style="font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;">
+                            menu_book
+                        </span>
+                        <h2 class="font-display text-3xl font-extrabold tracking-tight group-hover:opacity-80 transition-opacity">
+                            BookFinder
+                        </h2>
+                    </a>
+                </div>
+                <div class="flex-1 max-w-lg mx-8">
+                    <form action="{{ url_for('main.search') }}" method="POST">
+                        <label class="relative flex flex-col w-full">
+                            <div class="flex w-full items-stretch rounded-md h-10 bg-gray-100 dark:bg-slate-700/90 border border-gray-300">
+                                <button type="submit" class="text-gray-500 flex items-center justify-center pl-3 pr-2 hover:text-primary transition-colors">
+                                    <span class="text-xl material-symbols-outlined">search</span>
+                                </button>
+                                <input name="q" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-slate-500 text-sm font-normal leading-normal" placeholder="Search for festive reads..." value="{{ q }}"/>
+                            </div>
+                        </label>
+                    </form>
+                </div>
+                <div class="flex items-center justify-end gap-6">
+                    <a class="text-christmas-green font-semibold hover:text-primary transition-colors" href="{{ url_for('main.index') }}">Home</a>
+                    <a class="text-christmas-green font-semibold hover:text-primary transition-colors" href="{{ url_for('main.advanced_search') }}">Advanced Search</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="layout-container container mx-auto flex h-full grow flex-col px-4 py-8 md:py-12">
+        <div class="flex flex-col lg:flex-row gap-8 xl:gap-12">
+
+            <aside class="w-full lg:w-1/4 xl:w-1/5 flex-shrink-0 hidden lg:block">
+                <div class="sticky top-28">
+                    <h3 class="flex items-center gap-3 text-2xl font-bold font-display text-christmas-green dark:text-white mb-6">
+                        Categories
+                    </h3>
+                    <div class="space-y-3 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar text-sm text-gray-700 dark:text-gray-300">
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Explore</p>
+                        {% for genre in ['Adventure', 'Biography', 'Business', 'Children', 'Classics', 'Comics', 'Cookbooks', 'Crime', 'Dystopian', 'Fantasy', 'Fiction', 'Graphic Novels', 'Historical Fiction', 'History', 'Horror', 'Literary Fiction', 'Memoir', 'Mystery', 'Nonfiction', 'Poetry', 'Psychology', 'Romance', 'Science', 'Sci-Fi', 'Self-Help', 'Thriller', 'Travel', 'True Crime', 'Young Adult'] %}
+                        <a class="block hover:text-primary transition-colors {{ 'text-primary font-bold' if q|lower == genre|lower else '' }}"
+                           href="{{ url_for('main.search_genre', genre=genre) }}">
+                           {{ genre }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </aside>
+
+            <div class="flex-1">
+
+                <div class="mb-8">
+                    <h1 class="font-display text-gray-800 dark:text-white text-3xl font-bold leading-tight tracking-tight">Results for '{{ q }}'</h1>
+                    <p class="text-gray-500 dark:text-slate-400 mt-1">Best matches from our library</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 border-b border-gray-200 pb-12 mb-12">
+                    {% if books %}
+                        {% for book in books %}
+                        <div class="flex flex-col items-center text-center group">
+                            <a class="block w-full max-w-[180px]" href="{{ url_for('main.book_detail', book_id=book.id) }}">
+                                <div class="w-full aspect-[2/3] bg-gray-200 rounded-md shadow-lg group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300 bg-cover bg-center" style="background-image: url('{{ book.thumbnail }}');"></div>
+                            </a>
+                            <h4 class="font-display text-lg font-bold text-gray-800 dark:text-white mt-4 group-hover:text-primary transition-colors line-clamp-1">{{ book.title }}</h4>
+                            <p class="text-gray-500 dark:text-slate-400 text-sm">
+                                <a href="{{ url_for('main.author_detail', author_name=book.authors[0]) }}" class="hover:text-primary hover:underline transition-colors z-20 relative">
+                                    {{ book.authors[0] if book.authors else 'Unknown' }}
+                                </a>
+                            </p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 col-span-3">No direct matches found.</p>
+                    {% endif %}
+                </div>
+
+                {% if books %}
+                <div class="flex items-center justify-center mb-16">
+                    <nav class="flex items-center gap-2">
+                        {% if page > 1 %}
+                        <a class="flex items-center justify-center w-9 h-9 rounded text-slate-500 hover:bg-gray-200 transition-colors"
+                           href="{{ url_for('main.search', q=q, page=page-1) }}">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </a>
+                        {% else %}
+                        <span class="flex items-center justify-center w-9 h-9 rounded text-gray-300 cursor-not-allowed">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </span>
+                        {% endif %}
+
+                        <a class="flex items-center justify-center w-9 h-9 rounded text-sm font-medium {{ 'bg-christmas-green text-white' if page == 1 else 'text-slate-600 hover:bg-gray-200' }}"
+                           href="{{ url_for('main.search', q=q, page=1) }}">1</a>
+
+                        {% if page > 3 %}
+                        <span class="flex items-center justify-center w-9 h-9 text-sm text-slate-500">...</span>
+                        {% endif %}
+
+                        {% if page > 2 %}
+                        <a class="flex items-center justify-center w-9 h-9 rounded text-sm font-medium text-slate-600 hover:bg-gray-200"
+                           href="{{ url_for('main.search', q=q, page=page-1) }}">{{ page - 1 }}</a>
+                        {% endif %}
+
+                        {% if page != 1 %}
+                        <span class="flex items-center justify-center w-9 h-9 rounded text-sm font-medium bg-christmas-green text-white">
+                            {{ page }}
+                        </span>
+                        {% endif %}
+
+                        <a class="flex items-center justify-center w-9 h-9 rounded text-sm font-medium text-slate-600 hover:bg-gray-200"
+                           href="{{ url_for('main.search', q=q, page=page+1) }}">{{ page + 1 }}</a>
+
+                        <span class="flex items-center justify-center w-9 h-9 text-sm text-slate-500">...</span>
+
+                        <a class="flex items-center justify-center w-9 h-9 rounded text-slate-500 hover:bg-gray-200 transition-colors"
+                           href="{{ url_for('main.search', q=q, page=page+1) }}">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </a>
+                    </nav>
+                </div>
+                {% endif %}
+
+                {% if recommendations.similar_books %}
+                <div class="mb-8 pt-8 border-t border-gray-200">
+                    <h2 class="font-display text-gray-800 dark:text-white text-2xl font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-accent">auto_awesome</span>
+                        You Might Also Like
+                    </h2>
+                    </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8 mb-12">
+                    {% for item in recommendations.similar_books %}
+                    <div class="flex flex-col items-start group">
+                        <a class="block w-full" href="{{ url_for('main.book_detail', book_id=item.book.id) }}">
+                            <div class="w-full aspect-[2/3] bg-gray-200 rounded-md shadow-md group-hover:shadow-lg transition-all duration-300 bg-cover bg-center" style="background-image: url('{{ item.book.thumbnail }}');"></div>
+                        </a>
+                        <h4 class="font-display text-base font-bold text-gray-800 mt-3 group-hover:text-primary transition-colors line-clamp-1 text-left">{{ item.book.title }}</h4>
+                        <p class="text-gray-500 text-xs text-left">{{ item.book.authors[0] if item.book.authors else 'Unknown' }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if recommendations.genre_recommendations %}
+                <div class="space-y-12 border-t border-gray-200 pt-12">
+                    {% for genre_group in recommendations.genre_recommendations %}
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-display text-xl font-bold text-christmas-green dark:text-white">
+                                Explore {{ genre_group.genre }}
+                            </h3>
+                            <span class="h-px flex-1 bg-gray-200 ml-4"></span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {% for book in genre_group.books %}
+                            <div class="flex flex-col gap-2 group">
+                                <a href="{{ url_for('main.book_detail', book_id=book.id) }}" class="w-full aspect-[2/3] bg-gray-200 rounded shadow-sm bg-cover bg-center group-hover:opacity-90 transition-opacity" style="background-image: url('{{ book.thumbnail }}');"></a>
+                                <div>
+                                    <p class="font-bold text-sm text-gray-800 truncate">{{ book.title }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ book.authors[0] if book.authors else 'Unknown' }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

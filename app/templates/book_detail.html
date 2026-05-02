@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ book.title }} - BookFinder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+    @layer base {
+      .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    #book-summary p { transition: font-size 0.3s ease, line-height 0.3s ease; }
+</style>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#b91c1c",
+            "secondary": "#166534",
+            "background-light": "#FFFBF2",
+            "background-dark": "#1f2937",
+            "text-light": "#333333",
+            "text-dark": "#EAEAEA",
+            "text-muted-light": "#666666",
+            "text-muted-dark": "#999999",
+            "border-light": "#E0E0E0",
+            "border-dark": "#333333",
+            "amazon-dark": "#232F3E", // Kindle Dark
+            "amazon-orange": "#FF9900", // Kindle Orange
+          },
+          fontFamily: { "display": ["Work Sans", "sans-serif"], "body": ["Lora", "serif"] },
+        },
+      },
+    }
+</script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+
+<div id="shareModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity opacity-0" onclick="closeShareModal(event)">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-all duration-200 relative" id="modalContent" onclick="event.stopPropagation()">
+
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold font-display">Share</h3>
+            <button onclick="toggleShareModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <span class="material-symbols-outlined text-2xl text-gray-500">close</span>
+            </button>
+        </div>
+
+        <div class="space-y-3">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url | urlencode }}" target="_blank" class="flex items-center gap-4 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center text-xl font-bold">f</div>
+                <span class="text-base font-semibold text-gray-700 dark:text-gray-200">Facebook</span>
+            </a>
+
+            <a href="https://twitter.com/intent/tweet?text={{ book.title | urlencode }}&url={{ request.url | urlencode }}" target="_blank" class="flex items-center gap-4 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-lg font-bold">𝕏</div>
+                <span class="text-base font-semibold text-gray-700 dark:text-gray-200">Twitter</span>
+            </a>
+
+            <a href="https://pinterest.com/pin/create/button/?url={{ request.url | urlencode }}&description={{ book.title | urlencode }}&media={{ book.thumbnail | urlencode }}" target="_blank" class="flex items-center gap-4 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-[#E60023] text-white flex items-center justify-center text-xl font-bold">P</div>
+                <span class="text-base font-semibold text-gray-700 dark:text-gray-200">Pinterest</span>
+            </a>
+
+            <button onclick="copyLink()" class="flex items-center gap-4 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 flex items-center justify-center">
+                    <span class="material-symbols-outlined">link</span>
+                </div>
+                <span class="text-base font-semibold text-gray-700 dark:text-gray-200">Copy Link</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+    <header class="sticky top-0 z-50 flex items-center justify-center whitespace-nowrap border-b border-solid border-border-light/50 dark:border-border-dark/50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+        <div class="flex items-center justify-between w-full max-w-7xl px-4 lg:px-8 py-3">
+            <div class="flex items-center gap-8">
+                <a class="flex items-center gap-3 group" href="{{ url_for('main.index') }}">
+                    <span class="material-symbols-outlined text-4xl text-[#B91C1C]"
+                          style="font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;">
+                        menu_book
+                    </span>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-[#1F2937] dark:text-white group-hover:opacity-80 transition-opacity">
+                        BookFinder
+                    </h2>
+                </a>
+            </div>
+            <div class="flex flex-1 justify-end items-center gap-4">
+                <form action="{{ url_for('main.search') }}" method="POST" class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+                    <div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-200/60 dark:bg-slate-800/60">
+                        <button type="submit" class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center pl-3 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">search</span>
+                        </button>
+                        <input name="q" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-text-muted-light dark:placeholder:text-text-muted-dark pl-2 text-base font-normal leading-normal" placeholder="Search..." value=""/>
+                    </div>
+                </form>
+
+                <button onclick="toggleTextSize()" class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-200/60 dark:bg-slate-800/60 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 text-text-light dark:text-text-dark transition-colors group" title="Adjust Text Size">
+                    <span class="material-symbols-outlined group-hover:text-primary">format_size</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-4 lg:px-8 py-8 md:py-12">
+        <div class="flex items-center gap-2 mb-8 text-sm font-medium">
+            <a class="text-text-muted-light dark:text-text-muted-dark hover:text-primary dark:hover:text-secondary flex items-center transition-colors" href="javascript:history.back()">
+                <span class="material-symbols-outlined text-base align-middle mr-1">arrow_back</span>Back
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
+            <aside class="md:col-span-4 lg:col-span-3">
+                <div class="sticky top-28 flex flex-col items-center md:items-start gap-6">
+                    <div class="relative w-full max-w-xs md:max-w-none shadow-2xl rounded-lg overflow-hidden group">
+                        <img class="w-full h-auto object-cover aspect-[2/3]" src="{{ book.thumbnail }}" alt="{{ book.title }}">
+                        <div class="absolute -top-4 -right-4 text-primary/20 text-5xl transform rotate-12 group-hover:rotate-45 transition-transform duration-500"><span class="material-symbols-outlined !text-6xl">ac_unit</span></div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 w-full max-w-xs md:max-w-none">
+
+                        <a href="https://www.amazon.com/s?k={{ book.title|urlencode }}+{{ book.authors[0]|urlencode }}+kindle" target="_blank"
+                           class="flex items-center justify-center gap-2 rounded-lg h-14 px-4 bg-amazon-dark hover:bg-opacity-90 transition-all w-full shadow-lg group border border-gray-700">
+                            <span class="material-symbols-outlined text-white text-lg">tablet_android</span>
+                            <span class="text-base font-bold text-white tracking-wide">Check on Kindle</span>
+                        </a>
+
+                        <button onclick="toggleShareModal()" class="flex items-center justify-center rounded-lg h-12 px-5 bg-slate-200/60 dark:bg-slate-800/60 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 text-text-light dark:text-text-dark text-base font-bold w-full transition-colors group">
+                            <span class="material-symbols-outlined mr-2 group-hover:text-primary transition-colors">ios_share</span>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="md:col-span-8 lg:col-span-9">
+                <div class="flex flex-col gap-2 mb-8">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white">{{ book.title }}</h1>
+                    <p class="text-xl font-medium text-gray-500 dark:text-gray-400 mb-6">
+                        by
+                        <a href="{{ url_for('main.author_detail', author_name=book.authors[0]) }}"
+                            class="text-primary dark:text-primary-focus hover:text-christmas-red hover:underline transition-colors font-bold">
+                                {{ book.authors[0] if book.authors else 'Unknown' }}
+                        </a>
+                    </p>
+                </div>
+
+                <div class="space-y-12">
+                    <div>
+                        <h2 class="text-2xl font-bold border-b border-border-light dark:border-border-dark pb-3 mb-6 flex items-center gap-3">
+                            Summary <span class="material-symbols-outlined text-secondary text-3xl">auto_stories</span>
+                        </h2>
+                        <div id="book-summary" class="font-body text-lg leading-relaxed text-text-light dark:text-text-dark space-y-4">
+                            <p>{{ book.description|safe }}</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-border-light dark:border-border-dark pt-8">
+                        <h2 class="text-2xl font-bold pb-6">Book Details</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-base font-body">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-500 uppercase text-xs tracking-wider mb-2">Publisher</span>
+                                <span class="text-text-light dark:text-text-dark font-medium">{{ book.publisher or 'N/A' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-500 uppercase text-xs tracking-wider mb-2">Publication Date</span>
+                                <span class="text-text-light dark:text-text-dark font-medium">{{ book.publishedDate or 'N/A' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-500 uppercase text-xs tracking-wider mb-2">Pages</span>
+                                <span class="text-text-light dark:text-text-dark font-medium">{{ book.pageCount }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-500 uppercase text-xs tracking-wider mb-2">ISBN</span>
+                                <span class="text-text-light dark:text-text-dark font-medium">{{ book.isbn or 'N/A' }}</span>
+                            </div>
+                            <div class="flex flex-col md:col-span-4 mt-2">
+                                <span class="font-bold text-gray-500 uppercase text-xs tracking-wider mb-2">Genres</span>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for category in book.categories %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                                            {{ category }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-text-muted-light">Uncategorized</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-border-light dark:border-border-dark pt-12">
+                        <h2 class="text-2xl font-bold pb-8 border-b border-gray-200 dark:border-gray-700 mb-8">About the Author</h2>
+
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+
+                            <div class="flex-shrink-0">
+                                <a href="{{ url_for('main.author_detail', author_name=book.authors[0]) }}" class="block group relative">
+                                    <div class="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-4 border-white dark:border-gray-600 shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:border-christmas-gold">
+                                        {% if book.author_image %}
+                                            <img src="{{ book.author_image }}" alt="{{ book.authors[0] }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            <span class="material-symbols-outlined text-6xl text-gray-400">person</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="absolute bottom-0 right-0 bg-christmas-red text-white text-xs font-bold px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
+                                        View
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold mb-3">
+                                    <a href="{{ url_for('main.author_detail', author_name=book.authors[0]) }}" class="text-text-light dark:text-text-dark hover:text-christmas-red hover:underline transition-colors">
+                                        {{ book.authors[0] }}
+                                    </a>
+                                 </h3>
+
+                                <p class="font-body text-lg leading-relaxed text-text-muted-light dark:text-text-muted-dark mb-4">
+                                    {% if book.author_bio %}
+                                        {{ book.author_bio }}
+                                        <br>
+                                        <span class="text-sm mt-2 block opacity-70 italic">(Source: Wikipedia)</span>
+                                    {% else %}
+                                        {{ book.authors[0] }} is the author of this book. While we don't have a full biography available at this moment, their work in {{ book.categories[0] if book.categories else 'literature' }} has garnered attention from readers worldwide.
+                                    {% endif %}
+                                </p>
+
+                                <a href="{{ url_for('main.author_detail', author_name=book.authors[0]) }}" class="inline-flex items-center gap-2 text-christmas-red font-semibold hover:text-christmas-gold transition-colors group">
+                                    View Full Profile
+                                    <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 border-t-2 border-border-light dark:border-border-dark pt-12">
+            <div class="flex items-center gap-3 mb-8">
+                <h2 class="text-3xl font-bold font-display text-gray-900 dark:text-white">Readers Also Enjoyed</h2>
+                <span class="text-2xl">🎉</span>
+            </div>
+
+            <div class="relative w-full">
+                <div class="flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x">
+                    {% if recommendations %}
+                        {% for rec_book in recommendations %}
+                        <div id="rec-card-{{ rec_book.id }}" class="relative flex-shrink-0 w-40 md:w-48 group snap-start">
+
+                            <button onclick="hideBook('{{ rec_book.id }}', event)"
+                                    class="absolute top-2 right-2 z-10 bg-black/50 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"
+                                    title="Not Interested">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </button>
+
+                            <a href="{{ url_for('main.book_detail', book_id=rec_book.id) }}" class="block w-full h-full cursor-pointer">
+                                <div class="aspect-[2/3] w-full rounded-lg bg-gray-200 overflow-hidden shadow-md mb-4 relative">
+                                    <div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300" style="background-image: url('{{ rec_book.thumbnail }}');"></div>
+                                </div>
+                                <h4 class="font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors line-clamp-2 mb-1">{{ rec_book.title }}</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ rec_book.authors[0] }}</p>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500">No recommendations available at the moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if recently_viewed %}
+        <div class="mt-12 border-t border-border-light dark:border-border-dark pt-12 mb-20 animate-fade-in">
+            <h2 class="text-2xl font-bold text-gray-500 dark:text-gray-400 mb-6 uppercase tracking-wider text-sm">Recently Viewed</h2>
+            <div class="flex flex-wrap gap-4">
+                {% for history_book in recently_viewed %}
+                <div id="history-card-{{ history_book.id }}" class="relative group">
+
+                    <button onclick="removeHistory('{{ history_book.id }}', event)"
+                            class="absolute -top-2 -right-2 z-20 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:scale-110 transform"
+                            title="Remove from history">
+                        <span class="material-symbols-outlined text-[14px] font-bold">close</span>
+                    </button>
+
+                    <a href="{{ url_for('main.book_detail', book_id=history_book.id) }}" class="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-lg border border-border-light dark:border-gray-700 hover:border-primary transition-colors pr-6 shadow-sm hover:shadow-md min-w-[200px]">
+                        <img src="{{ history_book.thumbnail }}" class="w-10 h-14 object-cover rounded shadow-sm">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200 line-clamp-1 max-w-[140px]">{{ history_book.title }}</span>
+                            <span class="text-xs text-gray-500">{{ history_book.authors[0] }}</span>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </main>
+</div>
+
+<script>
+    // --- 1. Text Size Toggle ---
+    const summaryDiv = document.getElementById('book-summary');
+    const sizes = ['text-lg', 'text-xl', 'text-2xl'];
+    let currentSizeIndex = 0;
+
+    function toggleTextSize() {
+        sizes.forEach(size => summaryDiv.classList.remove(size));
+        currentSizeIndex = (currentSizeIndex + 1) % sizes.length;
+        summaryDiv.classList.add(sizes[currentSizeIndex]);
+    }
+
+    // --- 2. Share Modal Logic ---
+    function toggleShareModal() {
+        const modal = document.getElementById('shareModal');
+        const content = document.getElementById('modalContent');
+
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        } else {
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+    }
+
+    function closeShareModal(e) {
+        if (e.target.id === 'shareModal') {
+            toggleShareModal();
+        }
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        const btn = event.currentTarget;
+        const originalText = btn.querySelector('span:last-child').innerText;
+        btn.querySelector('span:last-child').innerText = "Copied!";
+        setTimeout(() => {
+             btn.querySelector('span:last-child').innerText = originalText;
+             toggleShareModal();
+        }, 1000);
+    }
+
+    // --- 3. Hide Book (Recommendation Logic) ---
+    function hideBook(bookId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if(!confirm("Don't recommend this book again?")) return;
+
+        // Visual Removal
+        const card = document.getElementById('rec-card-' + bookId);
+        if(card) {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            setTimeout(() => card.remove(), 300);
+        }
+
+        // Backend Call
+        fetch('/hide_book/' + bookId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            console.log("Book " + bookId + " hidden from recommendations.");
+        }).catch(err => console.error(err));
+    }
+
+    // --- 4. Remove History Logic (Recently Viewed) ---
+    function removeHistory(bookId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Visual Removal
+        const card = document.getElementById('history-card-' + bookId);
+        if(card) {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            setTimeout(() => card.remove(), 300);
+        }
+
+        // Backend Call
+        fetch('/remove_history/' + bookId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            console.log("History item " + bookId + " removed.");
+        }).catch(err => console.error(err));
+    }
+</script>
+</body>
+</html>
